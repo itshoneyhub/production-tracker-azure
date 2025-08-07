@@ -1,0 +1,1 @@
+feat: Increase table header width and font size for better readability

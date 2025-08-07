@@ -1,0 +1,3 @@
+fix: Directly apply hover background to table cells
+
+Explicitly set the background color of `td` and `th` elements on row hover to ensure proper highlighting, bypassing potential inheritance issues.
