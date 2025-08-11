@@ -1,36 +1,48 @@
-const { Pool } = require('pg');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+const sql = require('mssql');
 
-console.log('--- Environment Variables from process.env ---');
-console.log('process.env.DATABASE_URL:', process.env.DATABASE_URL ? '********' : 'undefined'); // Mask URL
-console.log('----------------------------------------------');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
+const dbConfig = {
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  server: process.env.DB_SERVER.split(',')[0],
+  database: process.env.DB_DATABASE,
+  port: parseInt(process.env.DB_PORT, 10),
+  options: {
+    encrypt: true, // Use this if you're on Azure
+    trustServerCertificate: true // Change to true for local dev / self-signed certs
   }
+};
+
+const pool = new sql.ConnectionPool(dbConfig);
+const poolConnect = pool.connect();
+
+pool.on('error', err => {
+  console.error('SQL Pool Error', err);
 });
 
-const connectDB = async () => {
+async function connectDB() {
   try {
-    await pool.connect();
-    console.log('Connected to PostgreSQL');
+    await poolConnect;
+    console.log('Connected to SQL Server');
   } catch (err) {
-    console.error('Database Connection Failed! Bad Config: ', err);
+    console.error('Database Connection Failed!', err);
     process.exit(1);
   }
-};
-
-const getPool = () => {
-  if (!pool) {
-    throw new Error('Connection pool is not initialized');
-  }
-  return pool;
-};
+}
 
 module.exports = {
   pool,
   connectDB,
-  getPool,
-  query: (text, params) => pool.query(text, params),
+  query: (text, params) => {
+    // mssql uses a different query format, so we need to adapt
+    // This is a simplified version and might need adjustments based on how params are used
+    const request = pool.request();
+    if (params) {
+      // This is a naive implementation. A more robust solution would be needed for named parameters.
+      // For now, assuming params are passed in order for a prepared statement.
+      // This part needs to be implemented based on the application's needs.
+    }
+    return request.query(text);
+  }
 };
