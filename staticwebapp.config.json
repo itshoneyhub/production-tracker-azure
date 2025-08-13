@@ -1,0 +1,14 @@
+{
+  "navigationFallback": {
+    "rewrite": "/production_tracker/index.html",
+    "exclude": ["/production_tracker/assets/*"]
+  },
+  "routes": [
+    {
+      "route": "/production_tracker/assets/*",
+      "headers": {
+        "cache-control": "must-revalidate, max-age=31536000"
+      }
+    }
+  ]
+}

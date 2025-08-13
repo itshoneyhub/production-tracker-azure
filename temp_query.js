@@ -1,22 +1,19 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: './backend/.env' });
+import sql from 'mssql';
 
-import { connectDB, getPool } from './backend/db.js';
+const connectionString = 'Server=192.168.1.240,1433;Database=production_track_db;User Id=productionTracker;Password=2025;TrustServerCertificate=True;';
 
-async function queryProjects() {
+async function connectAndQuery() {
   try {
-    await connectDB(); // Initialize the connection pool
-    const pool = getPool();
-    const result = await pool.request().query('SELECT * FROM Projects');
-    console.log(JSON.stringify(result.recordset, null, 2));
-  } catch (err) {
-    console.error('Error querying Projects table:', err);
-  } finally {
-    // Close the pool connection after the query
-    if (getPool().connected) {
-      getPool().close();
+    await sql.connect(connectionString);
+    const result = await sql.query`SELECT 1 AS test`;
+    if (result.recordset[0].test === 1) {
+      console.log('Database connected successfully');
     }
+  } catch (err) {
+    console.error('Error connecting to the database:', err);
+  } finally {
+    await sql.close();
   }
 }
 
-queryProjects();
+connectAndQuery();
