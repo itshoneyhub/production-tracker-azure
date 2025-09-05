@@ -14,7 +14,7 @@ export default defineConfig({
   },
   
   plugins: [react()],
-  base: '/production_tracker/',
+  
   build: {
     chunkSizeWarningLimit: 1500,
   },
